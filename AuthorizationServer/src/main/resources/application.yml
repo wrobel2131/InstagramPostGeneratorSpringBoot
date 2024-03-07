@@ -1,0 +1,23 @@
+server:
+  port: 9000
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          test-client:
+            provider: spring
+            client-id: test-client-id
+            client-secret: test-client-secret
+            authorization-grant-type: authorization_code, refresh_token
+            redirect-uri: "http://127.0.0.1:8080/authorized"
+
+        provider:
+          spring:
+            issuer_uri: http://localhost:9000
+logging:
+  level:
+    org:
+      springframework:
+        security: trace
