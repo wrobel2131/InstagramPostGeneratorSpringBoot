@@ -1,10 +1,10 @@
-package com.InstagramPostGenerator;
+package com.InstagramPostGenerator.AuthorizationServer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class InstagramPostGeneratorApplicationTests {
+class AuthorizationServerApplicationTests {
 
 	@Test
 	void contextLoads() {
