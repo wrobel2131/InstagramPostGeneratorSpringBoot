@@ -4,31 +4,3 @@ server:
 logging:
   level:
     org.springframework.security: trace
-#
-#spring:
-#  security:
-#    oauth2:
-#      authorizationserver:
-#        client:
-#          test-client:
-#            registration:
-#              client-id: test-client-id
-#              client-secret: test-client-secret
-#              client-authentication-methods:
-#                - client_secret_basic
-#              authorization-grant-types:
-#                - authorization_code
-#                - refresh_token
-#              redirect_uris:
-#                - http://127.0.0.1:8081/login/oauth2/code/test-client-id
-#              post-logout-redirect-uris:
-#                - http://127.0.0.1:8081/logout
-#              scopes:
-#                - openid
-#                - profile
-#                - read
-#                - write
-#              require-authorization-consent: true
-#              token:
-#                access-token-time-to-live: 3600s
-#                refresh-token-time-to-live: 7200s

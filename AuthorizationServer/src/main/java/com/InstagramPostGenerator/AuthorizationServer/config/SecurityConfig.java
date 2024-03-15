@@ -7,13 +7,19 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -27,6 +33,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
@@ -43,33 +50,41 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
 
-    //Entry level filter chain for protocol endpoints
+//    //Entry level filter chain for protocol endpoints
+//    @Bean
+//    @Order(1)
+//    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+//
+//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(withDefaults());
+//
+//        return http
+//                .exceptionHandling(e -> e
+//                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+//                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
+//                        httpSecurityOAuth2ResourceServerConfigurer.jwt(withDefaults())
+//                )
+//                .build();
+//
+//    }
+//
+//
+//    //Entry level filter chain for authentication
+//    @Bean
+//    @Order(2)
+//    public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .authorizeHttpRequests(authorize ->authorize
+//                        .requestMatchers("/login").permitAll()
+//                        .anyRequest().authenticated())
+//                .build();
+//    }
+
+   
+
     @Bean
-    @Order(1)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(withDefaults());
-
-        return http
-                .exceptionHandling(e -> e
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
-                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
-                        httpSecurityOAuth2ResourceServerConfigurer.jwt(withDefaults())
-                )
-                .build();
-
-    }
-
-
-    //Entry level filter chain for authentication
-    @Bean
-    @Order(2)
-    public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .formLogin(withDefaults())
-                .authorizeHttpRequests(authorize ->authorize.anyRequest().authenticated())
-                .build();
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     //Service for creating in memory users, needs to be replaced, when database will be created
