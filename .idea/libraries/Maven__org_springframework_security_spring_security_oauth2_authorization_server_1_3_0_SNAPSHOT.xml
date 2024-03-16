@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.springframework.security:spring-security-oauth2-authorization-server:1.3.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/security/spring-security-oauth2-authorization-server/1.3.0-SNAPSHOT/spring-security-oauth2-authorization-server-1.3.0-20240316.140414-113.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/security/spring-security-oauth2-authorization-server/1.3.0-SNAPSHOT/spring-security-oauth2-authorization-server-1.3.0-20240316.140414-113-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/security/spring-security-oauth2-authorization-server/1.3.0-SNAPSHOT/spring-security-oauth2-authorization-server-1.3.0-20240316.140414-113-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

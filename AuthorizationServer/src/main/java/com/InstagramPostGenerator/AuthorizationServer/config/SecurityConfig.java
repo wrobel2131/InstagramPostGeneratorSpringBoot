@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -31,6 +32,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -46,80 +48,69 @@ import java.util.UUID;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
+    @Bean
+    @Order(1)
+    public SecurityFilterChain asSecurityFilterChain(HttpSecurity http) throws Exception {
 
-//    //Entry level filter chain for protocol endpoints
-//    @Bean
-//    @Order(1)
-//    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-//
-//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(withDefaults());
-//
-//        return http
-//                .exceptionHandling(e -> e
-//                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-//                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
-//                        httpSecurityOAuth2ResourceServerConfigurer.jwt(withDefaults())
-//                )
-//                .build();
-//
-//    }
-//
-//
-//    //Entry level filter chain for authentication
-//    @Bean
-//    @Order(2)
-//    public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .authorizeHttpRequests(authorize ->authorize
-//                        .requestMatchers("/login").permitAll()
-//                        .anyRequest().authenticated())
-//                .build();
-//    }
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-   
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+        http.exceptionHandling(e -> e
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain appSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().authenticated()
+                )
+                .formLogin(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        var user1 = User.withUsername("user")
+                .password("password")
+                .authorities("read")
+                .build();
+        return new InMemoryUserDetailsManager(user1);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    //Service for creating in memory users, needs to be replaced, when database will be created
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user1 = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("user")
-                .roles("USER")
-                .build();
-        UserDetails user2 = User.withDefaultPasswordEncoder()
-                .username("user2")
-                .password("user2")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user1, user2);
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient registeredClient = RegisteredClient.withId("test-client-id")
+        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("test-client-id")
-                .clientSecret("{noop}secret")
-                .scope("read")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("write")
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oidc-client")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .clientSettings(clientSettings())
+                .clientSecret("test-secret")
+                .scopes(scopes -> {
+                    scopes.add(OidcScopes.PROFILE);
+                    scopes.add(OidcScopes.OPENID);
+                    scopes.add("read");
+                })
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/test-client-id")
+                .clientAuthenticationMethods(clientAuthenticationMethods -> {
+                    clientAuthenticationMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+                    clientAuthenticationMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                })
+                .authorizationGrantTypes(grantTypes -> {
+                    grantTypes.add(AuthorizationGrantType.REFRESH_TOKEN);
+                    grantTypes.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                    grantTypes.add(AuthorizationGrantType.CLIENT_CREDENTIALS);
+                })
                 .build();
-        return new InMemoryRegisteredClientRepository(registeredClient);
 
+        return new InMemoryRegisteredClientRepository(registeredClient);
     }
 
     @Bean
@@ -128,16 +119,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    ClientSettings clientSettings() {
-        return ClientSettings.builder()
-                .requireAuthorizationConsent(true)  // Display post-login authorization consent screen
-                .requireProofKey(true)              // flag to enable Proof Key for Code Exchange (PKCE)
-                .build();
+    public TokenSettings tokenSettings() {
+        return TokenSettings.builder().build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+    public ClientSettings clientSettings() {
+        return ClientSettings.builder()
+                .requireAuthorizationConsent(false)
+                .requireProofKey(false)
+                .build();
     }
 
     @Bean
@@ -165,8 +156,4 @@ public class SecurityConfig {
         }
         return keyPair;
     }
-
-
-
-
 }

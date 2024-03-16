@@ -1,6 +1,21 @@
 server:
   port: 9000
-
+spring:
+  application:
+    name: authorizationserver
+#  security:
+#    oauth2:
+#      authorizationserver:
+#        client:
+#          test-client:
+#            registration:
+#              client-id: "text-client-id"
+#              client-secret: "{noop}secret"
+#              client-authentication-methods:
+#                - "client_secret_basic"
+#              authorization-grant-types:
+#                -
 logging:
   level:
     org.springframework.security: trace
+
