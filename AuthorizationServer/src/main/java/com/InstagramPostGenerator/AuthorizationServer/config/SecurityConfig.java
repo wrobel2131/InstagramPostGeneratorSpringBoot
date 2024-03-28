@@ -79,11 +79,14 @@ public class SecurityConfig {
                         }
                 )/* If someone tries to access secured resources, 401 is sent
                    Normally it will redirect to login page. Since login page is from providers/from client, its not needed
-                   Only with form login
+                   Now, form login is disabled, because of REST login endpoint
                  */
-//                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
-//                .formLogin(withDefaults())
-                .oauth2Login(withDefaults())
+                /*
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .formLogin(withDefaults())
+
+                 */
+//                .oauth2Login(withDefaults())
                 .build();
     }
 
@@ -107,18 +110,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
-
-//    @Bean
-//    OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
-//        return context -> {
-//            Authentication authentication = context.getPrincipal();
-//            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-//                Set<String> authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-//                        .collect(Collectors.toSet());
-//                context.getClaims().claim("authorities", authorities);
-//            }
-//        };
-//    }
 
     /* Beans required for authorization server, checking tokens etc */
     @Bean
