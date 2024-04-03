@@ -14,6 +14,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -57,10 +58,10 @@ public class SecurityConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(withDefaults()); /* enable OpenID connect */
         http
-                .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-
-                )
+//                .exceptionHandling((exceptions) -> exceptions
+//                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+//
+//                )
                 .oauth2ResourceServer((resourceServer) -> resourceServer
                         .jwt(withDefaults()));
 
@@ -72,22 +73,19 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         request -> {
-                            request.requestMatchers("/", "/error", "/login").permitAll();
+                            request.requestMatchers("/login", "/error").permitAll();
                             request.anyRequest().authenticated();
                         }
-                )/* If someone tries to access secured resources, 401 is sent
-                   Normally it will redirect to login page. Since login page is from providers/from client, its not needed
-                   Now, form login is disabled, because of REST login endpoint
-                 */
-                /*
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
-                .formLogin(withDefaults())
 
-                 */
-//                .oauth2Login(withDefaults())
+                )
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()) //w przypa
+                )
                 .build();
+
     }
 
     @Bean
@@ -163,12 +161,9 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oidc-client")
-//                .postLogoutRedirectUri("http://127.0.0.1:8080/")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
-//                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
-
         return new InMemoryRegisteredClientRepository(oidcClient);
     }
 
