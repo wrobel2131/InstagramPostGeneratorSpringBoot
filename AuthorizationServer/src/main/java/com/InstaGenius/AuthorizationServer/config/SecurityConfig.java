@@ -81,24 +81,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> {
-                            request.requestMatchers( "/error","/static/**" ,"/webjars/**", "/images/**", "/css/**", "/assets/**", "/favicon.ico", "/login").permitAll();
+                            request.requestMatchers( "/error","/static/**" ,"/webjars/**", "/images/**",
+                                    "/css/**", "/assets/**", "/favicon.ico", "/login", "/auth/status").permitAll();
                             request.anyRequest().authenticated();
                         }
                 )
-//                .oauth2Login(withDefaults())
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         )
                 .build();
     }
-
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web
-//                .debug(false)
-//                .ignoring()
-//                .requestMatchers("/webjars/**", "/images/**", "/css/**", "/assets/**", "/favicon.ico");
-//    }
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
