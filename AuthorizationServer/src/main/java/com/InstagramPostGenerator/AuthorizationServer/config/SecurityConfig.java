@@ -48,8 +48,8 @@ public class SecurityConfig {
 
 
     /* Security filter chain responsible for auth protocol endpoint, for example oauth2/token
+     or sending jwks to resource servers
     *
-    * If error occurs (for example user cannot get token, because of bad credentials), 401 is returned
     * */
     @Bean
     @Order(1)
@@ -58,10 +58,6 @@ public class SecurityConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(withDefaults()); /* enable OpenID connect */
         http
-//                .exceptionHandling((exceptions) -> exceptions
-//                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-//
-//                )
                 .oauth2ResourceServer((resourceServer) -> resourceServer
                         .jwt(withDefaults()));
 
@@ -76,13 +72,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         request -> {
-                            request.requestMatchers("/login", "/error").permitAll();
+                            request.requestMatchers("/api/v1/auth/login", "/api/v1/auth/isAuthenticated", "/error").permitAll();
                             request.anyRequest().authenticated();
                         }
 
                 )
                 .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()) //w przypa
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
                 .build();
 
