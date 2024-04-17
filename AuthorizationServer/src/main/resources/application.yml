@@ -3,6 +3,17 @@ server:
 spring:
   application:
     name: authorizationserver
+  datasource:
+    url: jdbc:postgresql://localhost:5433/instagenius
+    username: admin
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 logging:
   level:
     org.springframework.security: trace
