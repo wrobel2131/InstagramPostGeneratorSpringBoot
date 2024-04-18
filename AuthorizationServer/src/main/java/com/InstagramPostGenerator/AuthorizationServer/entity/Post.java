@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -36,5 +38,11 @@ public class Post {
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User user;
+
+    //TODO check if relationship is valid
+    @ManyToMany(mappedBy = "posts", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    Set<Transaction> transactions = new HashSet<>();
+
 
 }
