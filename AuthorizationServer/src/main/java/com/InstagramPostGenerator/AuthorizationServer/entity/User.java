@@ -35,6 +35,9 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "is_active")
+    private Boolean isActive;
+
     /*
     mappedBy -> specifies, that user entity doesn't own relationship and points to the field
     in userCoins entity representing user. It tells, that FK is present in userCoins entity
