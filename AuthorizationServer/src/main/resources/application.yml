@@ -7,6 +7,10 @@ spring:
     url: jdbc:postgresql://localhost:5433/instagenius
     username: admin
     password: admin
+  sql:
+    init:
+      mode: always
+      platform: postgres
   jpa:
     hibernate:
       ddl-auto: create
@@ -14,6 +18,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    defer-datasource-initialization: true
 logging:
   level:
     org.springframework.security: trace

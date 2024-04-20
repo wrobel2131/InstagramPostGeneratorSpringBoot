@@ -57,7 +57,7 @@ public class User {
     @ToString.Exclude
     private UserCoins userProfile;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @ToString.Exclude
     private Set<Role> roles = new HashSet<>();

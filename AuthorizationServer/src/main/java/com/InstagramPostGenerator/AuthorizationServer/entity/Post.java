@@ -39,7 +39,6 @@ public class Post {
     @ToString.Exclude
     private User user;
 
-    //TODO check if relationship is valid
     @ManyToMany(mappedBy = "posts", fetch = FetchType.LAZY)
     @ToString.Exclude
     Set<Transaction> transactions = new HashSet<>();

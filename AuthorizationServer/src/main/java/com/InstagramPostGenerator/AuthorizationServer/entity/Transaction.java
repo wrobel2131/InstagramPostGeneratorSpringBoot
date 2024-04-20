@@ -45,8 +45,7 @@ public class Transaction {
     @ToString.Exclude
     private Payment payment;
 
-    //TODO check if relationship is valid
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "transactions_posts", joinColumns = @JoinColumn(name = "transaction_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
     @ToString.Exclude
     private Set<Post> posts = new HashSet<>();
